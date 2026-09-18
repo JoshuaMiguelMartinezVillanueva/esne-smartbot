@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ESNE SmartBot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #070B14;
+    --bg2: #0D1526;
+    --card: rgba(18, 32, 58, 0.75);
+    --card-border: rgba(0, 200, 255, 0.15);
+    --accent: #00D4FF;
+    --accent2: #7B61FF;
+    --green: #00E676;
+    --red: #FF4D6A;
+    --orange: #FFB300;
+    --text: #F0F7FF;
+    --text-muted: #8BA3C7;
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    background-image: 
+      radial-gradient(ellipse at 20% 0%, rgba(0, 212, 255, 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 100%, rgba(123, 97, 255, 0.08) 0%, transparent 50%);
+  }
+
+  /* ========== HEADER ========== */
+  header {
+    background: rgba(13, 21, 38, 0.9);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 14px 20px 12px;
+    text-align: center;
+    border-bottom: 1px solid var(--card-border);
+    position: relative;
+    z-index: 10;
+  }
+
+  header h1 {
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #00D4FF 0%, #7B61FF 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+
+  .dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+    transition: all 0.3s ease;
+  }
+
+  .dot.red {
+    background: var(--red);
+    box-shadow: 0 0 10px var(--red);
+  }
+
+  .dot.green {
+    background: var(--green);
+    box-shadow: 0 0 12px var(--green);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.15); }
+  }
+
+  /* ========== MAIN ========== */
+  main {
+    flex: 1;
+    padding: 20px 18px 100px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .screen {
+    display: none;
+    animation: fadeIn 0.35s ease;
+  }
+
+  .screen.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ========== HOME ========== */
+  .logo-container {
+    text-align: center;
+    margin: 30px 0 24px;
+  }
+
+  .logo {
+    font-size: 5.2rem;
+    line-height: 1;
+    filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.4));
+    animation: float 4s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .home-title {
+    text-align: center;
+    font-size: 1.45rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    letter-spacing: -0.02em;
+  }
+
+  .home-subtitle {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 36px;
+  }
+
+  /* ========== BOTONES ========== */
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 17px 20px;
+    margin: 12px 0;
+    border: none;
+    border-radius: 16px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #00D4FF 0%, #0099CC 100%);
+    color: #001018;
+    box-shadow: 0 6px 24px rgba(0, 212, 255, 0.35);
+  }
+
+  .btn-primary:active {
+    transform: scale(0.97);
+    box-shadow: 0 3px 12px rgba(0, 212, 255, 0.25);
+  }
+
+  .btn-secondary {
+    background: var(--card);
+    color: var(--text);
+    border: 1.5px solid var(--card-border);
+    backdrop-filter: blur(10px);
+  }
+
+  .btn-secondary:active {
+    background: rgba(0, 212, 255, 0.12);
+    border-color: var(--accent);
+    transform: scale(0.98);
+  }
+
+  .btn-danger {
+    background: linear-gradient(135deg, #FF4D6A 0%, #C9184A 100%);
+    color: white;
+    box-shadow: 0 6px 20px rgba(255, 77, 106, 0.3);
+  }
+
+  .btn-danger:active {
+    transform: scale(0.96);
+  }
+
+  /* ========== CONTROL ========== */
+  .section-title {
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 22px;
+    letter-spacing: -0.02em;
+  }
+
+  .control-pad {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    max-width: 300px;
+    margin: 0 auto 28px;
+  }
+
+  .control-btn {
+    aspect-ratio: 1;
+    border-radius: 22px;
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--card);
+    border: 1.5px solid var(--card-border);
+    color: var(--text);
+    box-shadow: var(--shadow);
+    transition: all 0.2s ease;
+  }
+
+  .control-btn:active {
+    transform: scale(0.92);
+    background: rgba(0, 212, 255, 0.15);
+    border-color: var(--accent);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.25);
+  }
+
+  .control-btn.stop {
+    background: linear-gradient(135deg, #FF4D6A 0%, #C9184A 100%);
+    border: none;
+    color: white;
+    box-shadow: 0 6px 20px rgba(255, 77, 106, 0.35);
+  }
+
+  .control-btn.stop:active {
+    transform: scale(0.9);
+  }
+
+  .extra-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* ========== ESTADO ========== */
+  .status-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 8px 18px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(12px);
+    box-shadow: var(--shadow);
+  }
+
+  .estado-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .estado-item:last-child {
+    border-bottom: none;
+  }
+
+  .estado-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+  }
+
+  .estado-icon {
+    font-size: 1.25rem;
+    width: 28px;
+    text-align: center;
+  }
+
+  .estado-value {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text);
+  }
+
+  .estado-value.green { color: var(--green); }
+  .estado-value.orange { color: var(--orange); }
+  .estado-value.red { color: var(--red); }
+  .estado-value.cyan { color: var(--accent); }
+
+  /* ========== MODOS ========== */
+  .mode-card {
+    background: var(--card);
+    border: 1.5px solid var(--card-border);
+    border-radius: 18px;
+    padding: 20px 18px;
+    margin-bottom: 14px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .mode-card:active {
+    transform: scale(0.98);
+  }
+
+  .mode-card.active {
+    border-color: var(--accent);
+    background: rgba(0, 212, 255, 0.08);
+    box-shadow: 0 0 24px rgba(0, 212, 255, 0.15);
+  }
+
+  .mode-card.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(to bottom, var(--accent), var(--accent2));
+    border-radius: 4px 0 0 4px;
+  }
+
+  .mode-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+
+  .mode-card h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .mode-badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: rgba(0, 212, 255, 0.15);
+    color: var(--accent);
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+
+  .mode-card.active .mode-badge {
+    opacity: 1;
+  }
+
+  .mode-card p {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    line-height: 1.45;
+  }
+
+  /* ========== NAV ========== */
+  nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    background: rgba(10, 16, 30, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--card-border);
+    padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
+    z-index: 50;
+  }
+
+  nav button {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    padding: 10px 4px 6px;
+    font-size: 0.68rem;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.2s;
+    border-radius: 12px;
+  }
+
+  nav button .nav-icon {
+    font-size: 1.35rem;
+    transition: transform 0.2s;
+  }
+
+  nav button.active {
+    color: var(--accent);
+  }
+
+  nav button.active .nav-icon {
+    transform: scale(1.12);
+  }
+
+  /* ========== TOAST ========== */
+  .toast {
+    position: fixed;
+    bottom: 95px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(15, 25, 45, 0.95);
+    backdrop-filter: blur(12px);
+    color: white;
+    padding: 14px 26px;
+    border-radius: 40px;
+    font-size: 0.92rem;
+    font-weight: 500;
+    opacity: 0;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 100;
+    pointer-events: none;
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    white-space: nowrap;
+    max-width: 90vw;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Small screens */
+  @media (max-width: 360px) {
+    .control-pad { max-width: 260px; gap: 10px; }
+    .control-btn { font-size: 1.5rem; border-radius: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>ESNE SmartBot</h1>
+  <div class="status-bar">
+    <span id="connDot" class="dot red"></span>
+    <span id="connText">Desconectado</span>
+  </div>
+</header>
+
+<main>
+  <!-- ========== INICIO ========== -->
+  <div id="home" class="screen active">
+    <div class="logo-container">
+      <div class="logo">🤖</div>
+    </div>
+    <h2 class="home-title">Robot Asistente Inteligente</h2>
+    <p class="home-subtitle">Centro de control móvil · Proyecto ESNE</p>
+    
+    <button class="btn btn-primary" onclick="conectar()">
+      <span id="btnConnectText">Conectar con SmartBot</span>
+    </button>
+    <button class="btn btn-secondary" onclick="mostrarToast('Proyecto ESNE · Etapa 1 · 2026')">
+      Acerca del proyecto
+    </button>
+  </div>
+
+  <!-- ========== CONTROL ========== -->
+  <div id="control" class="screen">
+    <h2 class="section-title">Control del Robot</h2>
+    
+    <div class="control-pad">
+      <div></div>
+      <button class="control-btn" onclick="enviar('AVANZAR')">⬆️</button>
+      <div></div>
+      
+      <button class="control-btn" onclick="enviar('GIRAR IZQUIERDA')">⬅️</button>
+      <button class="control-btn stop" onclick="enviar('DETENER')">⏹️</button>
+      <button class="control-btn" onclick="enviar('GIRAR DERECHA')">➡️</button>
+      
+      <div></div>
+      <button class="control-btn" onclick="enviar('RETROCEDER')">⬇️</button>
+      <div></div>
+    </div>
+
+    <div class="extra-actions">
+      <button class="btn btn-secondary" onclick="enviar('MODO AUTOMÁTICO')">
+        ⚡ Activar modo automático
+      </button>
+      <button class="btn btn-secondary" onclick="enviar('CONSULTAR SENSORES')">
+        📡 Consultar sensores
+      </button>
+    </div>
+  </div>
+
+  <!-- ========== ESTADO ========== -->
+  <div id="estado" class="screen">
+    <h2 class="section-title">Estado del SmartBot</h2>
+    
+    <div class="status-card">
+      <div class="estado-item">
+        <div class="estado-left">
+          <span class="estado-icon">🔋</span>
+          <span>Batería</span>
+        </div>
+        <strong class="estado-value green" id="bat">85 %</strong>
+      </div>
+      <div class="estado-item">
+        <div class="estado-left">
+          <span class="estado-icon">🌡️</span>
+          <span>Temperatura</span>
+        </div>
+        <strong class="estado-value" id="temp">27 °C</strong>
+      </div>
+      <div class="estado-item">
+        <div class="estado-left">
+          <span class="estado-icon">🚧</span>
+          <span>Obstáculo</span>
+        </div>
+        <strong class="estado-value green" id="obs">NO DETECTADO</strong>
+      </div>
+      <div class="estado-item">
+        <div class="estado-left">
+          <span class="estado-icon">📡</span>
+          <span>Conexión</span>
+        </div>
+        <strong class="estado-value cyan" id="estConn">—</strong>
+      </div>
+      <div class="estado-item">
+        <div class="estado-left">
+          <span class="estado-icon">🤖</span>
+          <span>Modo actual</span>
+        </div>
+        <strong class="estado-value cyan" id="modoActual">MANUAL</strong>
+      </div>
+    </div>
+
+    <button class="btn btn-secondary" onclick="actualizarEstado()">
+      🔄 Actualizar estado
+    </button>
+  </div>
+
+  <!-- ========== MODOS ========== -->
+  <div id="modos" class="screen">
+    <h2 class="section-title">Modos de funcionamiento</h2>
+    
+    <div class="mode-card active" onclick="seleccionarModo(this,'MANUAL')">
+      <div class="mode-header">
+        <h3>🖐️ MANUAL</h3>
+        <span class="mode-badge">ACTIVO</span>
+      </div>
+      <p>El usuario controla directamente el robot con los botones de movimiento.</p>
+    </div>
+
+    <div class="mode-card" onclick="seleccionarModo(this,'AUTÓNOMO')">
+      <div class="mode-header">
+        <h3>🧭 AUTÓNOMO</h3>
+        <span class="mode-badge">ACTIVO</span>
+      </div>
+      <p>El robot toma decisiones por sí mismo utilizando sus sensores de obstáculos.</p>
+    </div>
+
+    <div class="mode-card" onclick="seleccionarModo(this,'IA')">
+      <div class="mode-header">
+        <h3>🧠 INTELIGENCIA ARTIFICIAL</h3>
+        <span class="mode-badge">ACTIVO</span>
+      </div>
+      <p>Reconocimiento de objetos, personas y situaciones (disponible en etapas posteriores).</p>
+    </div>
+  </div>
+</main>
+
+<!-- ========== NAVEGACIÓN ========== -->
+<nav>
+  <button class="active" onclick="ir('home', this)">
+    <span class="nav-icon">🏠</span>
+    Inicio
+  </button>
+  <button onclick="ir('control', this)">
+    <span class="nav-icon">🎮</span>
+    Control
+  </button>
+  <button onclick="ir('estado', this)">
+    <span class="nav-icon">📊</span>
+    Estado
+  </button>
+  <button onclick="ir('modos', this)">
+    <span class="nav-icon">⚙️</span>
+    Modos
+  </button>
+</nav>
+
+<div id="toast" class="toast"></div>
+
+<script>
+  let conectado = false;
+  let modo = 'MANUAL';
+
+  function ir(id, btn) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function conectar() {
+    conectado = !conectado;
+    const dot = document.getElementById('connDot');
+    const txt = document.getElementById('connText');
+    const btnText = document.getElementById('btnConnectText');
+    const estConn = document.getElementById('estConn');
+
+    if (conectado) {
+      dot.className = 'dot green';
+      txt.textContent = 'Conectado';
+      btnText.textContent = 'Desconectar';
+      estConn.textContent = 'CONECTADO';
+      estConn.className = 'estado-value green';
+      mostrarToast('✅ Conectado con SmartBot');
+    } else {
+      dot.className = 'dot red';
+      txt.textContent = 'Desconectado';
+      btnText.textContent = 'Conectar con SmartBot';
+      estConn.textContent = 'DESCONECTADO';
+      estConn.className = 'estado-value red';
+      mostrarToast('Desconectado');
+    }
+  }
+
+  function enviar(cmd) {
+    if (!conectado) {
+      mostrarToast('⚠️ Primero debes conectar');
+      return;
+    }
+    mostrarToast('📤 Comando enviado: ' + cmd);
+  }
+
+  function seleccionarModo(el, m) {
+    document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    modo = m;
+    document.getElementById('modoActual').textContent = m;
+    mostrarToast('Modo cambiado a: ' + m);
+  }
+
+  function actualizarEstado() {
+    const bat = 70 + Math.floor(Math.random() * 26);
+    const temp = 24 + Math.floor(Math.random() * 8);
+    const obstaculo = Math.random() > 0.7;
+
+    const batEl = document.getElementById('bat');
+    batEl.textContent = bat + ' %';
+    batEl.className = 'estado-value ' + (bat > 50 ? 'green' : bat > 25 ? 'orange' : 'red');
+
+    document.getElementById('temp').textContent = temp + ' °C';
+
+    const obsEl = document.getElementById('obs');
+    obsEl.textContent = obstaculo ? 'DETECTADO' : 'NO DETECTADO';
+    obsEl.className = 'estado-value ' + (obstaculo ? 'red' : 'green');
+
+    mostrarToast('🔄 Estado actualizado');
+  }
+
+  function mostrarToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.remove('show');
+    void t.offsetWidth; // force reflow
+    t.classList.add('show');
+    clearTimeout(window.toastTimer);
+    window.toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+  }
+
+  // Inicializar estado de conexión
+  document.getElementById('estConn').textContent = 'DESCONECTADO';
+  document.getElementById('estConn').className = 'estado-value red';
+</script>
+</body>
+</html>
